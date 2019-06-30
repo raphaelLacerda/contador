@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<!-- <html manifest="/cache.appcache"> -->
+<html>
+
+<head>
+    <title></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
+        integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
+
+    <script type="application/javascript">
+        $(() => {
+            let mapaDeContadores
+
+            $("#principal").bind("DOMSubtreeModified", e => {
+                if (mapaDeContadores) {
+                    localStorage.mapaDeContadores = JSON.stringify(Array.from(mapaDeContadores
+                        .entries()));
+                }
+            });
+
+            $('#btnRemoverTodos').click(() => {
+                if (window.confirm("Do you really want to leave?")) {
+                    localStorage.removeItem('mapaDeContadores')
+                    window.location.reload()
+                }
+            })
+
+            $('#btnAdicionarContador').click(() => {
+                let idContador = criarContador(mapaDeContadores)
+                colocarEventos(mapaDeContadores.get(idContador), idContador)
+
+            })
+
+            if (!window.localStorage.mapaDeContadores) {
+                mapaDeContadores = new Map()
+                criarContador(mapaDeContadores);
+            } else {
+                mapaDeContadores = new Map(JSON.parse(window.localStorage.mapaDeContadores))
+            }
+
+            mapaDeContadores.forEach((totalizador, idContador) => {
+                colocarEventos(totalizador, idContador)
+            })
+        })
+
+        function criarContador(mapaDeContadores) {
+            let idContador = 'contador' + mapaDeContadores.size
+            let totalizador = {
+                totalMasculino: 0,
+                totalFeminino: 0,
+                data: new Date(),
+                local: ''
+            }
+            mapaDeContadores.set(idContador, totalizador)
+            return idContador
+        }
+
+        function colocarEventos(totalizador, idContador) {
+
+            if (idContador !== 'contador0') {
+                let $divContador = $('.referencia-inicio-contadores').next().clone()
+                $divContador.attr('id', idContador)
+                $('.referencia-inicio-contadores').after($divContador)
+            }
+            $('#' + idContador).find('.btnMasculinoAdicionar').click(() => {
+                totalizador.totalMasculino++
+                $('#' + idContador).find('.totalMasculino').html(totalizador.totalMasculino)
+            })
+            $('#' + idContador).find('.btnMasculinoRemover').click(() => {
+                totalizador.totalMasculino--
+                $('#' + idContador).find('.totalMasculino').html(totalizador.totalMasculino)
+            })
+            $('#' + idContador).find('.btnFemininoAdicionar').click(() => {
+                totalizador.totalFeminino++
+                $('#' + idContador).find('.totalFeminino').html(totalizador.totalFeminino)
+            })
+            $('#' + idContador).find('.btnFemininoRemover').click(() => {
+                totalizador.totalFeminino--
+                $('#' + idContador).find('.totalFeminino').html(totalizador.totalFeminino)
+            })
+
+            $('#' + idContador).find('.local').keyup(() => {
+                totalizador.local = $('#' + idContador).find('.local').val()
+            })
+            $('#' + idContador).find('.data').change(() => {
+                totalizador.data = $('#' + idContador).find('.data').val()
+            })
+
+
+            $('#' + idContador).find('.totalMasculino').html(totalizador.totalMasculino)
+            $('#' + idContador).find('.totalFeminino').html(totalizador.totalFeminino)
+
+            $('#' + idContador).find('.local').val(totalizador.local)
+
+            if (totalizador.data) {
+
+                $('#' + idContador).find('.data').val(totalizador.data)
+            } else {
+                $('#' + idContador).find('.data').val(new Date().toDateInputValue());
+            }
+        }
+    </script>
+
+    <style scoped>
+        .button-xlarge {
+            font-size: 125%;
+        }
+
+        .button-error {
+            background: rgb(202, 60, 60);
+            /* this is a maroon */
+        }
+
+        .button-secondary {
+            background: rgb(66, 184, 221);
+            /* this is a light blue */
+        }
+
+        .button-warning {
+            background: rgb(223, 117, 20);
+            /* this is an orange */
+        }
+
+        .button-success {
+            background: rgb(28, 184, 65); /* this is a green */
+        }
+
+
+        .button-success,
+        .button-error,
+        .button-warning,
+        .button-secondary {
+            color: white;
+            border-radius: 4px;
+            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+        }
+
+        .l-box {
+            padding: 1em;
+        }
+
+        .center {
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <main id="principal">
+        <div class="pure-g">
+            <div class="pure-u-1-2">
+                <button class="pure-u-23-24 button-xlarge pure-button button-success"
+                    id="btnAdicionarContador">Adicionar
+                    Contador</button>
+            </div>
+            <div class="pure-u-1-2">
+                <button class="pure-u-23-24 button-xlarge pure-button button-error" id="btnRemoverTodos">Remover
+                    todos</button>
+            </div>
+
+
+        </div>
+        <div class="l-box referencia-inicio-contadores"></div>
+        <div id="contador0" class="pure-g">
+            <form class="pure-form pure-form-stacked pure-u-1-1">
+                <label for="campoLocal">Local</label>
+                <input id="campoLocal" class="pure-u-23-24 local" type="text"
+                    placeholder="Informe aqui o local onde foi feita a medição">
+                <label for="data">Data</label>
+                <input id="data" type="datetime-local" class="pure-u-23-24 data">
+                <div class="l-box"></div>
+            </form>
+            <div class="pure-u-1-2">
+                <div class="pure-u-23-24">
+                    <header class="pure-u-1-1">Masculino</header>
+                    <button
+                        class="pure-u-1-1 button-xlarge pure-button pure-button-primary btnMasculinoAdicionar">+</button>
+                    <p></p>
+                    <button class="pure-u-1-1 button-xlarge pure-button button-error btnMasculinoRemover">-</button>
+                    <div class="l-box"></div>
+                    <div class="pure-g center">
+                        <button class="button-xlarge pure-u-1-2 pure-button button-warning">Total: <span
+                                class="totalMasculino"></span></button>
+                    </div>
+                </div>
+            </div>
+            <div class="pure-u-1-2">
+                <div class="pure-u-23-24">
+                    <header class="pure-u-1-1">Feminino</header>
+                    <button
+                        class="pure-u-1-1 button-xlarge pure-button pure-button-primary btnFemininoAdicionar">+</button>
+                    <p></p>
+                    <button class="pure-u-1-1 button-xlarge pure-button button-error btnFemininoRemover">-</button>
+                    <div class="l-box"></div>
+                    <div class="pure-g center">
+                        <button class="button-xlarge pure-u-1-2 pure-button button-warning">Total: <span
+                                class="totalFeminino"></span></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+
+
+</body>
+
+</html>
