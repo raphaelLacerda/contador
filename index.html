@@ -1,33 +1,28 @@
 <!DOCTYPE html>
-<!-- <html manifest="/cache.appcache"> -->
-<html>
+<html manifest="cache.appcache">
 
 <head>
     <title>Contador de Pessoas</title>
     <meta charset="UTF-8">
-    <link rel="shortcut icon" type="image/png" href="https://image.flaticon.com/icons/png/128/33/33308.png"/>
+    <link rel="shortcut icon" type="image/png" href="ico.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"
-        integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css"
-        integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/grids-responsive-min.css">
+    <script src="jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="pure-min.css" />
 
     <script type="application/javascript">
         var mapaDeContadores
 
         $(() => {
-            
+
+
+            $('#contadorModelo').hide();
 
             $("#principal").bind("DOMSubtreeModified", e => {
-                if (mapaDeContadores) {
-                    localStorage.mapaDeContadores = JSON.stringify(Array.from(mapaDeContadores
-                        .entries()));
-                }
+                salvar();
             });
 
             $('#btnRemoverTodos').click(() => {
-                if (window.confirm("Do you really want to leave?")) {
+                if (window.confirm("Deseja remover todos os Contadores?")) {
                     localStorage.removeItem('mapaDeContadores')
                     window.location.reload()
                 }
@@ -39,7 +34,8 @@
 
             })
 
-            if (!window.localStorage.mapaDeContadores) {
+            if (!window.localStorage.mapaDeContadores || new Map(JSON.parse(window.localStorage
+                    .mapaDeContadores)).size === 0) {
                 mapaDeContadores = new Map()
                 criarContador(mapaDeContadores);
             } else {
@@ -65,11 +61,11 @@
 
         function colocarEventos(totalizador, idContador) {
 
-            if (idContador !== 'contador0') {
-                let $divContador = $('.referencia-inicio-contadores').next().clone()
-                $divContador.attr('id', idContador)
-                $('.referencia-inicio-contadores').after($divContador)
-            }
+
+            let $divContador = $('#contadorModelo').clone().fadeIn();
+            $divContador.attr('id', idContador)
+            $('#contadorModelo').after($divContador)
+
             $('#' + idContador).find('.btnMasculinoAdicionar').click(() => {
                 totalizador.totalMasculino++
                 $('#' + idContador).find('.totalMasculino').html(totalizador.totalMasculino)
@@ -93,10 +89,15 @@
             $('#' + idContador).find('.data').change(() => {
                 totalizador.data = $('#' + idContador).find('.data').val()
             })
-            //$('#' + idContador).find('.btnRemoverContador').click(() => {
-              //  mapaDeContadores.delete(idContador)
-                //window.location.reload()
-            //})
+            $('#' + idContador).find('.btnRemoverContador').click(() => {
+
+                if (window.confirm("Deseja remover contador?")) {
+                    mapaDeContadores.delete(idContador)
+                    salvar()
+                    $('#' + idContador).remove()
+                }
+
+            })
 
 
             $('#' + idContador).find('.totalMasculino').html(totalizador.totalMasculino)
@@ -111,11 +112,26 @@
                 $('#' + idContador).find('.data').val(new Date().toDateInputValue());
             }
         }
+
+        function salvar() {
+            if (mapaDeContadores) {
+                localStorage.mapaDeContadores = JSON.stringify(Array.from(mapaDeContadores
+                    .entries()));
+            }
+        }
     </script>
 
     <style scoped>
         .button-xlarge {
             font-size: 125%;
+        }
+
+        .button-xsmall {
+            font-size: 70%;
+        }
+
+        .button-small {
+            font-size: 85%;
         }
 
         .button-error {
@@ -134,7 +150,8 @@
         }
 
         .button-success {
-            background: rgb(28, 184, 65); /* this is a green */
+            background: rgb(28, 184, 65);
+            /* this is a green */
         }
 
 
@@ -161,58 +178,116 @@
 
     <main id="principal">
         <div class="pure-g">
-            <div class="pure-u-1-2">
-                <button class="pure-u-23-24 button-xlarge pure-button button-success"
-                    id="btnAdicionarContador">Adicionar
-                    Contador</button>
-            </div>
-            <div class="pure-u-1-2">
-                <button class="pure-u-23-24 button-xlarge pure-button button-error" id="btnRemoverTodos">Remover
-                    todos</button>
-            </div>
-
-
+            <fieldset class="pure-u-23-24">
+                <legend>Opções</legend>
+                <div class="pure-u-11-24">
+                    <button class="pure-u-sm-11-12 button-small pure-button button-success" id="btnAdicionarContador">
+                        <svg id="i-clock" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"
+                            fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2">
+                            <circle cx="16" cy="16" r="14" />
+                            <path d="M16 8 L16 16 20 20" />
+                        </svg>
+                        <span style="font-size: 1.5em">Contador</span>
+                    </button>
+                </div>
+                <div class="pure-u-11-24">
+                    <button class="pure-u-11-12 button-small pure-button button-error" id="btnRemoverTodos">
+                        <svg id="i-ban" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"
+                            fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2">
+                            <circle cx="16" cy="16" r="14" />
+                            <path d="M6 6 L26 26" />
+                        </svg>
+                        <span style="font-size: 1.5em">Limpar Tudo</span>
+                    </button>
+                </div>
+            </fieldset>
         </div>
-        <div class="l-box referencia-inicio-contadores"></div>
-        <div id="contador0" class="pure-g">
-            <form class="pure-form pure-form-stacked pure-u-1-1">
-                <label for="campoLocal">Local</label>
-                <input id="campoLocal" class="pure-u-23-24 local" type="text"
-                    placeholder="Informe aqui o local onde foi feita a medição">
-                <label for="data">Data</label>
-                <input id="data" type="datetime-local" class="pure-u-23-24 data">
-                <div class="l-box"></div>
-                <!-- <button class="button-xlarge pure-u-1-3 pure-button button-error btnRemoverContador">Remover contador</button> -->
-                <!-- <div class="l-box"></div> -->
-            </form>
-            <div class="pure-u-1-2">
-                <div class="pure-u-23-24">
-                    <header class="pure-u-1-1">Masculino</header>
-                    <button
-                        class="pure-u-1-1 button-xlarge pure-button pure-button-primary btnMasculinoAdicionar">+</button>
-                    <p></p>
-                    <button class="pure-u-1-1 button-xlarge pure-button button-error btnMasculinoRemover">-</button>
+        <div id="contadorModelo" class="pure-g">
+            <div class="l-box"></div>
+            <fieldset class="pure-u-23-24">
+                <legend>Contador</legend>
+                <form class="pure-form pure-form-stacked pure-u-1-1">
+                    <label for="campoLocal">Local</label>
+                    <input id="campoLocal" class="pure-u-7-8 local" type="text"
+                        placeholder="Informe aqui o local onde foi feita a medição">
+                    <label for="data">Data</label>
+                    <input id="data" type="datetime-local" class="pure-u-7-8 data">
                     <div class="l-box"></div>
-                    <div class="pure-g center">
-                        <button class="button-xlarge pure-u-1-2 pure-button button-warning">Total: <span
-                                class="totalMasculino"></span></button>
+                    <button class="pure-u-sm-1-3 pure-button button-error button-xsmall btnRemoverContador">
+                        <svg id="i-trash" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32"
+                            fill="none" stroke="currentcolor" stroke-linecap="round" stroke-linejoin="round"
+                            stroke-width="2">
+                            <path
+                                d="M28 6 L6 6 8 30 24 30 26 6 4 6 M16 12 L16 24 M21 12 L20 24 M11 12 L12 24 M12 6 L13 2 19 2 20 6" />
+                        </svg>
+                    </button>
+                    <div class="l-box"></div>
+                </form>
+                <div class="pure-u-11-24">
+                    <div class="pure-u-23-24">
+                        <header class="pure-u-1-1">Masculino</header>
+                        <button class="pure-u-1-1 button-xlarge pure-button pure-button-primary btnMasculinoAdicionar">
+                            <svg id="i-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32"
+                                height="32" fill="none" stroke="currentcolor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2">
+                                <path d="M16 2 L16 30 M2 16 L30 16" />
+                            </svg>
+                        </button>
+                        <p></p>
+                        <button class="pure-u-1-1 button-xlarge pure-button btnMasculinoRemover">
+                            <svg id="i-minus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32"
+                                height="32" fill="none" stroke="currentcolor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2">
+                                <path d="M2 16 L30 16" />
+                            </svg>
+                        </button>
+                        <div class="l-box"></div>
+                        <div class="pure-g center">
+                            <button class="button-xlarge pure-u-7-12 pure-button button-warning">
+                                <svg id="i-info" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20"
+                                    height="20" fill="none" stroke="currentcolor" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2">
+                                    <path d="M16 14 L16 23 M16 8 L16 10" />
+                                    <circle cx="16" cy="16" r="14" />
+                                </svg>
+                                <span class="totalMasculino"></span></button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="pure-u-1-2">
-                <div class="pure-u-23-24">
-                    <header class="pure-u-1-1">Feminino</header>
-                    <button
-                        class="pure-u-1-1 button-xlarge pure-button pure-button-primary btnFemininoAdicionar">+</button>
-                    <p></p>
-                    <button class="pure-u-1-1 button-xlarge pure-button button-error btnFemininoRemover">-</button>
-                    <div class="l-box"></div>
-                    <div class="pure-g center">
-                        <button class="button-xlarge pure-u-1-2 pure-button button-warning">Total: <span
-                                class="totalFeminino"></span></button>
+                <div class="pure-u-11-24">
+                    <div class="pure-u-23-24">
+                        <header class="pure-u-1-1">Feminino</header>
+                        <button class="pure-u-1-1 button-xlarge pure-button pure-button-primary btnFemininoAdicionar">
+                            <svg id="i-plus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32"
+                                height="32" fill="none" stroke="currentcolor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2">
+                                <path d="M16 2 L16 30 M2 16 L30 16" />
+                            </svg>
+                        </button>
+                        <p></p>
+                        <button class="pure-u-1-1 button-xlarge pure-button btnFemininoRemover">
+                            <svg id="i-minus" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32"
+                                height="32" fill="none" stroke="currentcolor" stroke-linecap="round"
+                                stroke-linejoin="round" stroke-width="2">
+                                <path d="M2 16 L30 16" />
+                            </svg>
+                        </button>
+                        <div class="l-box"></div>
+                        <div class="pure-g center">
+                            <button class="button-xlarge pure-u-7-12 pure-button button-warning">
+                                <svg id="i-info" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="20"
+                                    height="20" fill="none" stroke="currentcolor" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2">
+                                    <path d="M16 14 L16 23 M16 8 L16 10" />
+                                    <circle cx="16" cy="16" r="14" />
+                                </svg>
+                                <span class="totalFeminino"></span></button>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </fieldset>
         </div>
 
 
